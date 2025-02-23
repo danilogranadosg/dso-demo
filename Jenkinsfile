@@ -27,7 +27,7 @@ pipeline {
             }
           }
         }
-		stage('SCA') {
+        stage('SCA') {
           steps {
             container('maven') {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -41,7 +41,7 @@ pipeline {
             }
           }
         }
-		stage('Generate SBOM') {
+        stage('Generate SBOM') {
           steps {
             container('maven') {
               sh 'mvn org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom'
@@ -50,7 +50,7 @@ pipeline {
           post {
             success {
               // dependencyTrackPublisher projectName: 'sample-spring-app', projectVersion: '0.0.1', artifact: 'target/bom.xml', autoCreateProjects: true, synchronous: true 
-			  archiveArtifacts allowEmptyArchive: true, artifacts:'target/bom.xml', fingerprint: true, onlyIfSuccessful: true
+              archiveArtifacts allowEmptyArchive: true, artifacts:'target/bom.xml', fingerprint: true, onlyIfSuccessful: true
             }
           }
         }
@@ -114,13 +114,13 @@ pipeline {
           steps {
             container('docker-tools') {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                sh 'trivy image --timeout 10m --exit-code 1 danilogranadosg/dso-demo'
+                sh 'trivy image --timeout 10m --exit-code 1 --format json --output trivy-results.json danilogranadosg/dso-demo'
               }
             }
           }
           post {
             always {
-              archiveArtifacts allowEmptyArchive: true, artifacts: 'trivy-results*.*', fingerprint: true
+              archiveArtifacts allowEmptyArchive: true, artifacts: 'trivy-results.json', fingerprint: true
             }
           }
         }
