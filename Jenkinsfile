@@ -106,19 +106,26 @@ pipeline {
         stage('Image Linting') {
           steps {
             container('docker-tools') {
-				sh 'dockle docker.io/danilogranadosg/dso-demo'
-			}
-		  }
-		}
-		stage('Image Scan') {
-		  steps {
-			container('docker-tools') {
-			  sh 'trivy image --timeout 10m --exit-code 1 danilogranadosg/dso-demo'
-			}
-		  }
-		}
-	  }
-	}
+              sh 'dockle docker.io/danilogranadosg/dso-demo'
+            }
+          }
+        }
+        stage('Image Scan') {
+          steps {
+            container('docker-tools') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                sh 'trivy image --timeout 10m --exit-code 1 danilogranadosg/dso-demo'
+              }
+            }
+          }
+          post {
+            always {
+              archiveArtifacts allowEmptyArchive: true, artifacts: 'trivy-results*.*', fingerprint: true
+            }
+          }
+        }
+      }
+    }
     stage('Deploy to Dev') {
       steps {
         // TODO
