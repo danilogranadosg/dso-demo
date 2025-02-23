@@ -5,7 +5,6 @@ metadata:
   labels:
     app: dso-demo
   name: dso-demo
-  namespace: dev
 spec:
   ports:
   - name: "8080"
