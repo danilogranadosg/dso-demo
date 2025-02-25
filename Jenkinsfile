@@ -1,7 +1,7 @@
 pipeline {
   environment {
-    ARGO_SERVER = '34.67.226.175:32100'
-	DEV_URL = 'http://34.67.226.175:30080/'
+    ARGO_SERVER = '34.44.133.100:32100'
+    DEV_URL = 'http://34.44.133.100:30080/'
   }  
   agent {
     kubernetes {
@@ -131,6 +131,13 @@ pipeline {
         }
       }
     }
+    stage('Scan k8s Deploy Code') {
+      steps {
+        container('docker-tools') {
+          sh 'kubesec scan deploy/dso-demo-deploy.yaml'
+        }
+      }
+    }
     stage('Deploy to Dev') {
       environment {
         AUTH_TOKEN = credentials('argocd-jenkins-deployer-token')
@@ -159,4 +166,4 @@ pipeline {
       }
     }
   }
-}  
+}
